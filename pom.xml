@@ -23,6 +23,19 @@
     <artifactId>spring-boot-starter-rocketmq</artifactId>
     <version>0.0.4</version>
 
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>local private nexus</name>
+            <url>http://192.168.59.240:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>local private nexus</name>
+            <url>http://192.168.59.240:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -80,18 +93,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <distributionManagement>
-                <repository>
-                    <id>releases</id>
-                    <name>local private nexus</name>
-                    <url>http://192.168.59.240:8081/repository/maven-releases/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>snapshots</id>
-                    <name>local private nexus</name>
-                    <url>http://192.168.59.240:8081/repository/maven-snapshots/</url>
-                </snapshotRepository>
-            </distributionManagement>
         </profile>
     </profiles>
 </project>
