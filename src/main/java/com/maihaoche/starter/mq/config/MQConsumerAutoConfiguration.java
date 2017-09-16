@@ -48,8 +48,8 @@ public class MQConsumerAutoConfiguration extends MQBaseAutoConfiguration {
         String consumerGroup = mqConsumer.consumerGroup();
         if(StringUtils.isEmpty(consumerGroup)) {
             //再次使用AbstractMQPullConsumer,AbstractMQPushConsumer子类实例的consumerGroup字段值
-            Object consumerGroupFieldValue = consumerGroupField.get(bean);
-            if(null == consumerGroupField || null == consumerGroupFieldValue){
+            Object consumerGroupFieldValue = null;
+            if(null == consumerGroupField || null == (consumerGroupFieldValue = consumerGroupField.get(bean))){
                 throw new RuntimeException("consumer's consumerGroup not defined in @MQConsumer(use consumerGroup) annotation or not defined field which named consumerGroup(e.g. use ${\"rocketmq.demoConsumer.consumerGroup\"})");
             }
             if(!String.class.isAssignableFrom(consumerGroupField.getType())){
@@ -62,8 +62,8 @@ public class MQConsumerAutoConfiguration extends MQBaseAutoConfiguration {
         String topic = mqConsumer.topic();
         if(StringUtils.isEmpty(topic)) {
             //再次使用AbstractMQPullConsumer,AbstractMQPushConsumer子类实例的consumerGroup字段值
-            Object topicFieldValue = topicField.get(bean);
-            if(null == topicField || null == topicFieldValue){
+            Object topicFieldValue = null;
+            if(null == topicField || null == (topicFieldValue = topicField.get(bean))){
                 throw new RuntimeException("consumer's topic not defined in @MQConsumer(use topic) annotation or not defined field which named topic(e.g. use ${\"rocketmq.demoConsumer.topic\"})");
             }
             if(!String.class.isAssignableFrom(topicField.getType())){

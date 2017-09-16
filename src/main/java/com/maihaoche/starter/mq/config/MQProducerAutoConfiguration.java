@@ -63,8 +63,8 @@ public class MQProducerAutoConfiguration extends MQBaseAutoConfiguration {
         if(StringUtils.isEmpty(topic)) {
             //其次使用生产者实例的topic字段值
             final Field topicField = FieldUtils.getDeclaredField(bean.getClass(),"topic",true);
-            Object topicFieldValue = topicField.get(bean);
-            if(null != topicField || null != topicFieldValue){
+            Object topicFieldValue = null;
+            if(null != topicField || null != (topicFieldValue = topicField.get(bean))){
                 if(!String.class.isAssignableFrom(topicField.getType())){
                     throw new RuntimeException("producer's field which named topic must be String");
                 }
