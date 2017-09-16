@@ -48,9 +48,12 @@ public class MQConsumerAutoConfiguration extends MQBaseAutoConfiguration {
         String consumerGroup = mqConsumer.consumerGroup();
         if(StringUtils.isEmpty(consumerGroup)) {
             //再次使用AbstractMQPullConsumer,AbstractMQPushConsumer子类实例的consumerGroup字段值
-            Object consumerGroupFieldValue = null;
-            if(null == consumerGroupField || null == (consumerGroupFieldValue = consumerGroupField.get(bean))){
+            if(null == consumerGroupField){
                 throw new RuntimeException("consumer's consumerGroup not defined in @MQConsumer(use consumerGroup) annotation or not defined field which named consumerGroup(e.g. use ${\"rocketmq.demoConsumer.consumerGroup\"})");
+            }
+            Object consumerGroupFieldValue = consumerGroupField.get(bean);
+            if(null == consumerGroupFieldValue){
+                throw new RuntimeException("consumer's consumerGroup field should set a value");
             }
             if(!String.class.isAssignableFrom(consumerGroupField.getType())){
                 throw new RuntimeException("consumer's field which named consumerGroup must be String");
@@ -62,9 +65,12 @@ public class MQConsumerAutoConfiguration extends MQBaseAutoConfiguration {
         String topic = mqConsumer.topic();
         if(StringUtils.isEmpty(topic)) {
             //再次使用AbstractMQPullConsumer,AbstractMQPushConsumer子类实例的consumerGroup字段值
-            Object topicFieldValue = null;
-            if(null == topicField || null == (topicFieldValue = topicField.get(bean))){
+            if(null == topicField){
                 throw new RuntimeException("consumer's topic not defined in @MQConsumer(use topic) annotation or not defined field which named topic(e.g. use ${\"rocketmq.demoConsumer.topic\"})");
+            }
+            Object topicFieldValue = topicField.get(bean);
+            if(null == topicFieldValue){
+                throw new RuntimeException("consumer's topic field should set a value");
             }
             if(!String.class.isAssignableFrom(topicField.getType())){
                 throw new RuntimeException("consumer's field which named topic must be String");
