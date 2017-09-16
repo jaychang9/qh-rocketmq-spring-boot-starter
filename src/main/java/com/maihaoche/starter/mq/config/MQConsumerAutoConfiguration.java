@@ -44,54 +44,47 @@ public class MQConsumerAutoConfiguration extends MQBaseAutoConfiguration {
             throw new RuntimeException("name server address must be defined");
         }
         final Field consumerGroupField = FieldUtils.getDeclaredField(bean.getClass(), "consumerGroup", true);
-        final Field topicField = FieldUtils.getDeclaredField(bean.getClass(), "topic", true);
-        String consumerGroup = null,topic = null;
         //优先使用@MQConsumer注解定义的consumerGroup值
-        if(StringUtils.isBlank(consumerGroup = mqConsumer.consumerGroup())) {
+        String consumerGroup = mqConsumer.consumerGroup();
+        if(StringUtils.isEmpty(consumerGroup)) {
             //再次使用AbstractMQPullConsumer,AbstractMQPushConsumer子类实例的consumerGroup字段值
-            if(null != consumerGroupField){
-                if(!String.class.isAssignableFrom(consumerGroupField.getType())){
-                    throw new RuntimeException("consumer's field which named consumerGroup must be String");
-                }
-                consumerGroup = (String)consumerGroupField.get(bean);
-                if(StringUtils.isBlank(consumerGroup)){
-                    throw new RuntimeException("consumer's consumerGroup field value can not be blank");
-                }
+            Object consumerGroupFieldValue = consumerGroupField.get(bean);
+            if(null == consumerGroupField || null == consumerGroupFieldValue){
+                throw new RuntimeException("consumer's consumerGroup not defined in @MQConsumer(use consumerGroup) annotation or not defined field which named consumerGroup(e.g. use ${\"rocketmq.demoConsumer.consumerGroup\"})");
             }
+            if(!String.class.isAssignableFrom(consumerGroupField.getType())){
+                throw new RuntimeException("consumer's field which named consumerGroup must be String");
+            }
+            consumerGroup = (String)consumerGroupFieldValue;
         }
-        if(StringUtils.isBlank(topic = mqConsumer.topic())) {
+        final Field topicField = FieldUtils.getDeclaredField(bean.getClass(), "topic", true);
+        //优先使用@MQConsumer注解定义的topic值
+        String topic = mqConsumer.topic();
+        if(StringUtils.isEmpty(topic)) {
             //再次使用AbstractMQPullConsumer,AbstractMQPushConsumer子类实例的consumerGroup字段值
-            if(null != topicField){
-                if(!String.class.isAssignableFrom(topicField.getType())){
-                    throw new RuntimeException("consumer's field which named topic must be String");
-                }
-                topic = (String)topicField.get(bean);
-                if(StringUtils.isBlank(topic)){
-                    throw new RuntimeException("consumer's topic field value can not be blank");
-                }
+            Object topicFieldValue = topicField.get(bean);
+            if(null == topicField || null == topicFieldValue){
+                throw new RuntimeException("consumer's topic not defined in @MQConsumer(use topic) annotation or not defined field which named topic(e.g. use ${\"rocketmq.demoConsumer.topic\"})");
             }
+            if(!String.class.isAssignableFrom(topicField.getType())){
+                throw new RuntimeException("consumer's field which named topic must be String");
+            }
+            topic = (String)topicFieldValue;
         }
         if(!AbstractMQPushConsumer.class.isAssignableFrom(bean.getClass())
                 && !AbstractMQPullConsumer.class.isAssignableFrom(bean.getClass())) {
             throw new RuntimeException(bean.getClass().getName() + " - consumer未实现AbstractMQPushConsumer或AbstractMQPullConsumer抽象类");
         }
-        //最后从环境变量获取消费者的消费组以及主题的配置
-        if(StringUtils.isBlank(consumerGroup)) {
-            consumerGroup = applicationContext.getEnvironment()
-                .getProperty(mqConsumer.consumerGroup());
+        //环境变量有对consumerGroup的配置，则取环境变量的配置（环境变量的key为@MQConsumer的consumerGroup或消费者实例consumerGroup字段的值，注意不是字段的名称）
+        String consumerGroupEnv = applicationContext.getEnvironment().getProperty(consumerGroup);
+        if(StringUtils.isNotEmpty(consumerGroupEnv)) {
+            consumerGroup = consumerGroupEnv;
         }
-        if(StringUtils.isBlank(topic)) {
-            topic = applicationContext.getEnvironment().getProperty(mqConsumer.topic());
+        //环境变量有对topic的配置，则取环境变量的配置（环境变量的key为@MQConsumer的topic或消费者实例topic字段的值，注意不是字段的名称）
+        String topicEnv = applicationContext.getEnvironment().getProperty(topic);
+        if(StringUtils.isNotEmpty(topicEnv)) {
+            topic = topicEnv;
         }
-
-        if(StringUtils.isBlank(consumerGroup)) {
-            throw new RuntimeException("consumer's consumerGroup not defined please check,hint:you can define it in @MQConsumer annotation or use field which named consumerGroup");
-        }
-
-        if(StringUtils.isBlank(topic)) {
-            throw new RuntimeException("consumer's topic not defined please check,hint:you can define it in @MQConsumer annotation or use field which named topic");
-        }
-
         // 配置push consumer
         if(AbstractMQPushConsumer.class.isAssignableFrom(bean.getClass())) {
             DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(consumerGroup);

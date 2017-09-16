@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
@@ -61,34 +60,31 @@ public class MQProducerAutoConfiguration extends MQBaseAutoConfiguration {
         //优先使用MQProducer注解指定的topic值
         String topic = mqProducer.topic();
 
-        //再次使用生产者topic字段值
-        if(StringUtils.isBlank(topic)) {
+        if(StringUtils.isEmpty(topic)) {
+            //其次使用生产者实例的topic字段值
             final Field topicField = FieldUtils.getDeclaredField(bean.getClass(),"topic",true);
-            if(null != topicField){
+            Object topicFieldValue = topicField.get(bean);
+            if(null != topicField || null != topicFieldValue){
                 if(!String.class.isAssignableFrom(topicField.getType())){
-                    throw new RuntimeException("producer's topic field type must be String");
+                    throw new RuntimeException("producer's field which named topic must be String");
                 }
-                topic = (String)topicField.get(bean);
+                topic = (String)topicFieldValue;
             }
         }
-        //再次使用环境变量
-        if(StringUtils.isBlank(topic)) {
-            topic = applicationContext.getEnvironment().getProperty(topic);
+        //如果环境变量有设置，则使用环境变量，但环境变量的key取决于@MQProducer的topic值或生产者的topic字段值
+        if(StringUtils.isNotEmpty(topic)) {
+            // 取topic环境变量
+            String topicEnv = applicationContext.getEnvironment().getProperty(topic);
+            topic = StringUtils.isEmpty(topicEnv) ? topic : topicEnv;
         }
-
         abstractMQProducer.setTopic(topic);
-
-
         // begin build producer level tag
         String tag = mqProducer.tag();
-        if(StringUtils.isBlank(tag)) {
+        if(StringUtils.isNotEmpty(tag)) {
             String transTag = applicationContext.getEnvironment().getProperty(tag);
-            if(StringUtils.isBlank(transTag)) {
-                abstractMQProducer.setTag(tag);
-            } else {
-                abstractMQProducer.setTag(transTag);
-            }
+            tag = StringUtils.isEmpty(transTag) ? tag : transTag;
         }
+        abstractMQProducer.setTag(tag);
         log.info(String.format("%s is ready to produce message", beanName));
     }
 }
