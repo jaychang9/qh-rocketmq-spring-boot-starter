@@ -13,8 +13,8 @@ import java.lang.annotation.*;
 @Documented
 @Component
 public @interface MQConsumer {
-    String consumerGroup();
-    String topic();
+    String consumerGroup() default "";
+    String topic() default "";
     String messageMode() default "CLUSTERING";
     String consumeMode() default "CONCURRENTLY";
     String[] tag() default {"*"};
