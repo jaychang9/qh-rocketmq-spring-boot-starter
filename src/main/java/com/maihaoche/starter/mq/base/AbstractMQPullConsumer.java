@@ -82,7 +82,7 @@ public abstract class AbstractMQPullConsumer<T> extends AbstractMQConsumer<T>{
      *
      * @param message 消息范型
      */
-    public abstract void process(T message);
+    public abstract void process(String tags,T message);
 
     /**
      * 原生dealMessage方法，可以重写此方法自定义序列化和返回消费成功的相关逻辑
@@ -96,7 +96,7 @@ public abstract class AbstractMQPullConsumer<T> extends AbstractMQConsumer<T>{
             }
             log.info("receive msgId: {}, tags : {}" , messageExt.getMsgId(), messageExt.getTags());
             T t = parseMessage(messageExt);
-            process(t);
+            process(messageExt.getTags(),t);
         }
     }
 }

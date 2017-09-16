@@ -33,7 +33,7 @@ public abstract class AbstractMQPushConsumer<T> extends AbstractMQConsumer<T>{
      * @param messageKey 消息key
      * @return 处理结果
      */
-    public abstract boolean processWithKey(String messageKey, T message);
+    public abstract boolean processWithKey(String messageKey,String tags, T message);
 
     /**
      * 原生dealMessage方法，可以重写此方法自定义序列化和返回消费成功的相关逻辑
@@ -49,7 +49,7 @@ public abstract class AbstractMQPushConsumer<T> extends AbstractMQConsumer<T>{
             }
             log.info("receive msgId: {}, tags : {}" , messageExt.getMsgId(), messageExt.getTags());
             T t = parseMessage(messageExt);
-            if( null != t && !processWithKey( messageExt.getKeys(), t)) {
+            if( null != t && !processWithKey( messageExt.getKeys(), messageExt.getTags(), t)) {
                 log.warn("consume fail , ask for re-consume , msgId: {}", messageExt.getMsgId());
                 return ConsumeConcurrentlyStatus.RECONSUME_LATER;
             }
@@ -71,7 +71,7 @@ public abstract class AbstractMQPushConsumer<T> extends AbstractMQConsumer<T>{
             }
             log.info("receive msgId: {}, tags : {}" , messageExt.getMsgId(), messageExt.getTags());
             T t = parseMessage(messageExt);
-            if( null != t && !processWithKey(messageExt.getKeys(), t)) {
+            if( null != t && !processWithKey(messageExt.getKeys(), messageExt.getTags(), t)) {
                 log.warn("consume fail , ask for re-consume , msgId: {}", messageExt.getMsgId());
                 return ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;
             }
