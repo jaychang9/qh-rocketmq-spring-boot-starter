@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @Slf4j
 @Configuration
-@ConditionalOnBean(MQBaseAutoConfiguration.class)
+@ConditionalOnBean(value = MQBaseAutoConfiguration.class,annotation = MQProducer.class)
 public class MQProducerAutoConfiguration extends MQBaseAutoConfiguration {
 
     private DefaultMQProducer producer;
@@ -25,9 +25,6 @@ public class MQProducerAutoConfiguration extends MQBaseAutoConfiguration {
     @PostConstruct
     public void init() throws Exception {
         if(producer == null) {
-//            if(StringUtils.isEmpty(mqProperties.getProducerGroup())) {
-//                throw new RuntimeException("请在配置文件中指定消息发送方group！");
-//            }
             if(StringUtils.isEmpty(mqProperties.getProducerGroup())) {
                 throw new RuntimeException("producer group must be defined");
             }
