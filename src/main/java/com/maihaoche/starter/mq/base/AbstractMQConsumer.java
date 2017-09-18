@@ -22,6 +22,8 @@ import org.springframework.util.Assert;
 public abstract class AbstractMQConsumer<T> {
 
     protected static Gson gson = new Gson();
+    /**默认最大重试次数5次*/
+    protected static final int MAX_RETRY_TIMES = 5;
 
     /**
      * 继承这个方法处理消息
@@ -76,5 +78,15 @@ public abstract class AbstractMQConsumer<T> {
             // 如果没有定义泛型，解析为Object
             return Object.class;
         }
+    }
+
+    protected boolean checkReachMaxRetryTimes(MessageExt messageExt) {
+        log.info("re-consume times: {}" , messageExt.getReconsumeTimes());
+        //大于最大重试次数则记录失败日志，并返回ConsumeOrderlyStatus.SUCCESS
+        if(messageExt.getReconsumeTimes() >= MAX_RETRY_TIMES){
+            log.error("Consumer reach the maximum number of retries,please process by manual work,msgId:{},msgKey:{},tags:{}",messageExt.getMsgId(),messageExt.getKeys(),messageExt.getTags());
+            return true;
+        }
+        return false;
     }
 }

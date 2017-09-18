@@ -85,7 +85,10 @@ public abstract class AbstractMQPullConsumer<T> extends AbstractMQConsumer<T>{
     public void dealMessage(List<MessageExt> list) {
         for(MessageExt messageExt : list) {
             if(messageExt.getReconsumeTimes() != 0) {
-                log.info("re-consume times: {}" , messageExt.getReconsumeTimes());
+                //达到最大重试次数则不对消息进行消费
+                if(checkReachMaxRetryTimes(messageExt)){
+                    continue;
+                }
             }
             log.info("receive msgId: {}, tags : {}" , messageExt.getMsgId(), messageExt.getTags());
             T t = parseMessage(messageExt);

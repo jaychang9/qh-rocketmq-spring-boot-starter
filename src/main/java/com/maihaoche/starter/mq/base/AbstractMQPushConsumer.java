@@ -58,7 +58,9 @@ public abstract class AbstractMQPushConsumer<T> extends AbstractMQConsumer<T>{
     public ConsumeOrderlyStatus dealMessage(List<MessageExt> list, ConsumeOrderlyContext consumeOrderlyContext) {
         for(MessageExt messageExt : list) {
             if(messageExt.getReconsumeTimes() != 0) {
-                log.info("re-consume times: {}" , messageExt.getReconsumeTimes());
+                if (checkReachMaxRetryTimes(messageExt)) {
+                    return ConsumeOrderlyStatus.SUCCESS;
+                }
             }
             log.info("receive msgId: {}, tags : {}" , messageExt.getMsgId(), messageExt.getTags());
             T t = parseMessage(messageExt);
@@ -69,4 +71,6 @@ public abstract class AbstractMQPushConsumer<T> extends AbstractMQConsumer<T>{
         }
         return  ConsumeOrderlyStatus.SUCCESS;
     }
+
+
 }
