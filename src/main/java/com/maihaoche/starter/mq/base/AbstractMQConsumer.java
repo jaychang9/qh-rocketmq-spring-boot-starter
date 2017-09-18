@@ -23,6 +23,15 @@ public abstract class AbstractMQConsumer<T> {
     protected static Gson gson = new Gson();
 
     /**
+     * 继承这个方法处理消息
+     *
+     * @param message 消息范型
+     * @param messageKey 消息key
+     * @return 处理结果
+     */
+    public abstract boolean processWithKey(String messageKey,String tags, T message);
+
+    /**
      * 反序列化解析消息
      *
      * @param message  消息体

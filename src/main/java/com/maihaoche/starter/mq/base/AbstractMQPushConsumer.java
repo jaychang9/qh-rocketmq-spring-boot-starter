@@ -27,15 +27,6 @@ public abstract class AbstractMQPushConsumer<T> extends AbstractMQConsumer<T>{
     }
 
     /**
-     * 继承这个方法处理消息
-     *
-     * @param message 消息范型
-     * @param messageKey 消息key
-     * @return 处理结果
-     */
-    public abstract boolean processWithKey(String messageKey,String tags, T message);
-
-    /**
      * 原生dealMessage方法，可以重写此方法自定义序列化和返回消费成功的相关逻辑
      *
      * @param list 消息列表
