@@ -40,7 +40,7 @@ public abstract class AbstractMQPushConsumer<T> extends AbstractMQConsumer<T>{
             }
             log.info("receive msgId: {}, tags : {}" , messageExt.getMsgId(), messageExt.getTags());
             T t = parseMessage(messageExt);
-            if( null != t && !processWithKey( messageExt.getKeys(), messageExt.getTags(), t)) {
+            if( null != t && !process( messageExt.getKeys(), messageExt.getTags(), t)) {
                 log.warn("consume fail , ask for re-consume , msgId: {}", messageExt.getMsgId());
                 return ConsumeConcurrentlyStatus.RECONSUME_LATER;
             }
@@ -62,7 +62,7 @@ public abstract class AbstractMQPushConsumer<T> extends AbstractMQConsumer<T>{
             }
             log.info("receive msgId: {}, tags : {}" , messageExt.getMsgId(), messageExt.getTags());
             T t = parseMessage(messageExt);
-            if( null != t && !processWithKey(messageExt.getKeys(), messageExt.getTags(), t)) {
+            if( null != t && !process(messageExt.getKeys(), messageExt.getTags(), t)) {
                 log.warn("consume fail , ask for re-consume , msgId: {}", messageExt.getMsgId());
                 return ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;
             }

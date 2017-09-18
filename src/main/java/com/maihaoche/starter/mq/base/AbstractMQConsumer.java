@@ -2,6 +2,7 @@ package com.maihaoche.starter.mq.base;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +28,10 @@ public abstract class AbstractMQConsumer<T> {
      *
      * @param message 消息范型
      * @param messageKey 消息key
+     * @param tag 消息tag
      * @return 处理结果
      */
-    public abstract boolean processWithKey(String messageKey,String tags, T message);
+    public abstract boolean process(String messageKey,String tag, T message);
 
     /**
      * 反序列化解析消息
@@ -43,11 +45,14 @@ public abstract class AbstractMQConsumer<T> {
         }
         final Type type = this.getMessageType();
         if (type instanceof Class) {
+            String messageBody = null;
             try {
-                T data = gson.fromJson(new String(message.getBody()), type);
+                T data = gson.fromJson(messageBody = new String(message.getBody(),"utf-8"), type);
                 return data;
             } catch (JsonSyntaxException e) {
-                log.error("parse message json fail : {}", e.getMessage());
+                log.error("parse message json fail : {},message body:{}", e.getMessage(),messageBody);
+            } catch (UnsupportedEncodingException e) {
+                log.error("parse message json fail : {},message content:{}", e.getMessage());
             }
         } else {
             log.warn("Parse msg error. {}", message);
@@ -70,7 +75,6 @@ public abstract class AbstractMQConsumer<T> {
         } else {
             // 如果没有定义泛型，解析为Object
             return Object.class;
-//            throw new RuntimeException("Unkown parameterized type.");
         }
     }
 }

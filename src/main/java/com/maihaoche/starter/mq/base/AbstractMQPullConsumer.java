@@ -89,7 +89,7 @@ public abstract class AbstractMQPullConsumer<T> extends AbstractMQConsumer<T>{
             }
             log.info("receive msgId: {}, tags : {}" , messageExt.getMsgId(), messageExt.getTags());
             T t = parseMessage(messageExt);
-            processWithKey(messageExt.getKeys(),messageExt.getTags(),t);
+            process(messageExt.getKeys(),messageExt.getTags(),t);
         }
     }
 }
