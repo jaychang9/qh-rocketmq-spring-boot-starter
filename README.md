@@ -29,7 +29,7 @@
 <dependency>
 	<groupId>com.maihaoche</groupId>
 	<artifactId>spring-boot-starter-rocketmq</artifactId>
-	<version>qh-0.0.4</version>
+	<version>qh-1.0.0</version>
 </dependency>
 ```
 
